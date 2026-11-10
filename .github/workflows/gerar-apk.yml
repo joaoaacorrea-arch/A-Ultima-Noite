@@ -25,7 +25,7 @@ jobs:
         shell: bash
         run: |
           test -n "$ANDROID_HOME"
-          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
       - name: Compilar e verificar
         run: |
           unzip -q A_Ultima_Noite_GitHub_APK.zip -d projeto
