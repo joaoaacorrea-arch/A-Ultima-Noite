@@ -17,6 +17,10 @@ jobs:
           java-version: '17'
       - name: Extrair projeto 3D
         run: unzip -q UltimaNoite_Godot_3D.zip -d godot-project
+      - name: Preparar ferramentas de teste
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ripgrep xvfb libgl1-mesa-dri
       - name: Testar e gerar APK Godot
         working-directory: godot-project/UltimaNoite
         run: bash ci/build.sh
