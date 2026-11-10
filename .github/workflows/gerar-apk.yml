@@ -1,53 +1,41 @@
-name: Gerar APK Android
+name: Gerar APK 3D Godot
 on:
   workflow_dispatch:
   push:
-    branches: [main, master]
+    branches: [main]
 permissions:
   contents: read
 jobs:
-  apk:
+  godot-android:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
-      - name: Configurar Java 17
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      - name: Configurar Gradle 8.9
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
-          cache-disabled: true
-      - name: Instalar SDK Android
-        shell: bash
-        run: |
-          test -n "$ANDROID_HOME"
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
-      - name: Compilar e verificar
-        run: |
-          unzip -q A_Ultima_Noite_GitHub_APK.zip -d projeto
-          gradle -p projeto --no-daemon --stacktrace :app:assembleDebug :app:lintDebug
-      - name: Preparar APK
-        shell: bash
-        run: |
-          mkdir -p entrega
-          cp projeto/app/build/outputs/apk/debug/app-debug.apk entrega/A_Ultima_Noite.apk
-          sha256sum entrega/A_Ultima_Noite.apk > entrega/SHA256.txt
-      - name: Disponibilizar APK
+      - name: Extrair projeto 3D
+        run: unzip -q UltimaNoite_Godot_3D.zip -d godot-project
+      - name: Testar e gerar APK Godot
+        working-directory: godot-project/UltimaNoite
+        run: bash ci/build.sh
+      - name: Disponibilizar APK 3D
         uses: actions/upload-artifact@v4
         with:
-          name: A_Ultima_Noite_APK
-          path: entrega/
+          name: A_Ultima_Noite_3D_APK
+          path: |
+            godot-project/UltimaNoite/build/A_Ultima_Noite_3D.apk
+            godot-project/UltimaNoite/build/SHA256.txt
           if-no-files-found: error
           retention-days: 1
-      - name: Relatorio de verificacao
+      - name: Relatorios e previas
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Relatorio_Android
-          path: projeto/app/build/reports/lint-results-debug.*
+          name: Godot_3D_Verificacao
+          path: |
+            godot-project/UltimaNoite/build/*.log
+            godot-project/UltimaNoite/preview*.png
           if-no-files-found: ignore
           retention-days: 1
